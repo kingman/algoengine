@@ -1,18 +1,24 @@
 package com.netlight.app;
 
+import java.awt.List;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
+
 public class OrderBook {
 
 	String mdReqID;
 	String symbol;
-	Double bestBid;
-	Double bestAsk;
-	Double bestBidVolume;
-	Double bestAskVolume;
+	Map<Integer, OrderDepthEntry> buySide;
+	Map<Integer, OrderDepthEntry> sellSide;
+	
 	
 	public OrderBook(String mdReqID, String symbol)
 	{
 		this.mdReqID = mdReqID;
 		this.symbol = symbol;
+		buySide = new HashMap<Integer, OrderDepthEntry>();
+		sellSide = new HashMap<Integer, OrderDepthEntry>();
 	}
 	public String getSymbol(){
 		return symbol;
@@ -24,33 +30,30 @@ public class OrderBook {
 		this.mdReqID = mdReqID;
 	}
 	public Double getBestBid() {
-		return bestBid;
-	}
-	public void setBestBid(Double bestBid) {
-		this.bestBid = bestBid;
-	}
-	public Double getBestAsk() {
-		return bestAsk;
-	}
-	public void setBestAsk(Double bestAsk) {
-		this.bestAsk = bestAsk;
-	}
-	public Double getBestBidVolume() {
-		return bestBidVolume;
-	}
-	public void setBestBidVolume(Double bestBidVolume) {
-		this.bestBidVolume = bestBidVolume;
-	}
-	public Double getBestAskVolume() {
-		return bestAskVolume;
-	}
-	public void setBestAskVolume(Double bestAskVolume) {
-		this.bestAskVolume = bestAskVolume;
+		return buySide.get(1) != null ? buySide.get(1).getPrice() : null;
 	}
 
-	public void print()
+	public Double getBestAsk() {
+		return sellSide.get(1) != null ? sellSide.get(1).getPrice() : null;
+	}
+
+	public Double getBestBidVolume() {
+		return buySide.get(1) != null ? buySide.get(1).getVolume() : null;
+	}
+	public Double getBestAskVolume() {
+		return sellSide.get(1) != null ? sellSide.get(1).getVolume() : null;
+	}
+	
+	public void addBuyOrderDepth(Integer level, Double price, Double volume) {
+		buySide.put(level, new OrderDepthEntry().setPrice(price).setVolume(volume));
+	}
+
+	public void addSellOrderDepth(Integer level, Double price, Double volume) {
+		sellSide.put(level, new OrderDepthEntry().setPrice(price).setVolume(volume));
+	}
+	public String toString()
 	{
-		System.out.println("OrderBook for " + this.symbol + " updated. BBO:" + this.getBestBidVolume() + "@" + this.getBestBid() + " / " + this.getBestAskVolume() + " @" + this.getBestAsk());
+		return "OrderBook for " + this.symbol + " updated. BBO:" + this.getBestBidVolume() + "@" + this.getBestBid() + " / " + this.getBestAskVolume() + " @" + this.getBestAsk();
 	}
 	
 	

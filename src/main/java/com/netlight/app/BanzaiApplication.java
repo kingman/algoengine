@@ -32,6 +32,7 @@ import quickfix.DefaultMessageFactory;
 import quickfix.DoNotSend;
 import quickfix.FieldNotFound;
 import quickfix.FixVersions;
+import quickfix.Group;
 import quickfix.IncorrectDataFormat;
 import quickfix.IncorrectTagValue;
 import quickfix.Message;
@@ -54,6 +55,9 @@ import quickfix.field.LastShares;
 import quickfix.field.LeavesQty;
 import quickfix.field.LastQty;
 import quickfix.field.LocateReqd;
+import quickfix.field.MDEntryPositionNo;
+import quickfix.field.MDEntryPx;
+import quickfix.field.MDEntrySize;
 import quickfix.field.MDEntryType;
 import quickfix.field.MDReqID;
 import quickfix.field.MDUpdateType;
@@ -318,9 +322,33 @@ public class BanzaiApplication implements Application {
     	OrderBook orderBook = marketDataSubscriptionModel.getOrderBook(mdReqID.getValue());
     	
     	int noMDEntries = message.getField(new NoMDEntries()).getValue();
-    	for (int i = 0; i<noMDEntries;i++){
-    		
+    	Group tmpGroup = new quickfix.fix44.MarketDataSnapshotFullRefresh.NoMDEntries();
+        MDEntryType mDEntryType = new MDEntryType();
+        MDEntryPx mDEntryPx = new MDEntryPx();
+        MDEntrySize mDEntrySize = new MDEntrySize();
+        MDEntryPositionNo mdEntryPositionNo = new MDEntryPositionNo();
+    	for (int i = 1; i<=noMDEntries;i++){
+    		message.getGroup(i, tmpGroup);
+            tmpGroup.getField(mDEntryType);
+            tmpGroup.getField(mDEntryPx);
+            tmpGroup.getField(mDEntrySize);
+            tmpGroup.getField(mdEntryPositionNo);
+            switch (mDEntryType.getValue()) {            
+				case '0':
+					orderBook.addBuyOrderDepth(mdEntryPositionNo.getValue(), mDEntryPx.getValue(), mDEntrySize.getValue());
+					
+				break;
+				case '1':
+					orderBook.addSellOrderDepth(mdEntryPositionNo.getValue(), mDEntryPx.getValue(), mDEntrySize.getValue());
+					
+					
+					break;
+
+			default:
+				break;
+			}
     	}
+    	System.out.println(orderBook);
     	
     }
     public void subscribe(String symbol, SessionID sessionID, String reqID){

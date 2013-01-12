@@ -30,11 +30,13 @@ public class MarketDataSubscriptionModel implements Observer {
         LogonEvent logonEvent = (LogonEvent) arg;
         if(logonEvent.isLoggedOn()) {
         	String reqID =  UUID.randomUUID().toString();
-        	OrderBooks.put(reqID, new OrderBook(reqID, "A"));
-        	app.subscribe("A", logonEvent.getSessionID(), reqID);
-        	//String reqID =  UUID.randomUUID().toString();
-        	//OrderBooks.put(reqID, new OrderBook(reqID));
-        	//app.subscribe("B", logonEvent.getSessionID(), reqID);
+        	OrderBooks.put(reqID, new OrderBook(reqID, "ERIC B BURG"));
+        	app.subscribe("ERIC B BURG", logonEvent.getSessionID(), reqID);
+        	
+        	 reqID =  UUID.randomUUID().toString();
+        	OrderBooks.put(reqID, new OrderBook(reqID, "ERIC B XSTO"));
+        	app.subscribe("ERIC B XSTO", logonEvent.getSessionID(), reqID);
+
         }
 
 	}
