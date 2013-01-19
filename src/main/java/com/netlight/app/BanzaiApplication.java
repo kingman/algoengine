@@ -51,9 +51,8 @@ import quickfix.field.DeliverToCompID;
 import quickfix.field.ExecID;
 import quickfix.field.HandlInst;
 import quickfix.field.LastPx;
-import quickfix.field.LastShares;
-import quickfix.field.LeavesQty;
 import quickfix.field.LastQty;
+import quickfix.field.LastShares;
 import quickfix.field.LocateReqd;
 import quickfix.field.MDEntryPositionNo;
 import quickfix.field.MDEntryPx;
@@ -65,7 +64,6 @@ import quickfix.field.MarketDepth;
 import quickfix.field.MsgSeqNum;
 import quickfix.field.MsgType;
 import quickfix.field.NoMDEntries;
-import quickfix.field.NoRelatedSym;
 import quickfix.field.OrdStatus;
 import quickfix.field.OrdType;
 import quickfix.field.OrderQty;
@@ -85,6 +83,9 @@ import quickfix.field.TimeInForce;
 import quickfix.field.TransactTime;
 import quickfix.fix44.MarketDataRequest;
 
+import com.netlight.app.algo.Strategy;
+import com.netlight.app.algo.API;
+
 public class BanzaiApplication implements Application {
     private DefaultMessageFactory messageFactory = new DefaultMessageFactory();
     private OrderTableModel orderTableModel = null;
@@ -92,6 +93,7 @@ public class BanzaiApplication implements Application {
     private MarketDataSubscriptionModel marketDataSubscriptionModel = null;
     private ObservableOrder observableOrder = new ObservableOrder();
     private ObservableLogon observableLogon = new ObservableLogon();
+    private Strategy strategy;
     private boolean isAvailable = true;
     private boolean isMissingField;
     
@@ -106,6 +108,7 @@ public class BanzaiApplication implements Application {
         this.orderTableModel = orderTableModel;
         this.executionTableModel = executionTableModel;
         this.marketDataSubscriptionModel = marketDataSubscriptionModel;
+        this.strategy = new Strategy(this);
     }
 
     public void onCreate(SessionID sessionID) {
@@ -336,20 +339,17 @@ public class BanzaiApplication implements Application {
             switch (mDEntryType.getValue()) {            
 				case '0':
 					orderBook.addBuyOrderDepth(mdEntryPositionNo.getValue(), mDEntryPx.getValue(), mDEntrySize.getValue());
-					
-				break;
+					break;
 				case '1':
 					orderBook.addSellOrderDepth(mdEntryPositionNo.getValue(), mDEntryPx.getValue(), mDEntrySize.getValue());
-					
-					
 					break;
-
-			default:
-				break;
+				default:
+					break;
 			}
     	}
-    	System.out.println(orderBook);
     	
+    	strategy.OnPriceUpdate(orderBook.getSymbol(), orderBook.getBestAsk(), orderBook.getBestAskVolume(), API.Side.SELL);
+    	strategy.OnPriceUpdate(orderBook.getSymbol(), orderBook.getBestBid(), orderBook.getBestBidVolume(), API.Side.BUY);
     }
     public void subscribe(String symbol, SessionID sessionID, String reqID){
     	String beginString = sessionID.getBeginString();
@@ -690,4 +690,9 @@ public class BanzaiApplication implements Application {
     public void setAvailable(boolean isAvailable) {
         this.isAvailable = isAvailable;
     }
+    
+    public OrderBook getOrderbook(String stockKey) {
+    	return marketDataSubscriptionModel.getOrderbook(stockKey);
+    }
+    
 }
