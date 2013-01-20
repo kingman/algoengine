@@ -11,6 +11,12 @@ import com.netlight.app.algo.API.Side;
 
 public class Strategy implements Observer{
 	
+	/**
+	 * Bid price - what you are offering to buy for
+	 * Ask price - what is your offered sell price
+	 */
+	
+	
 	API api;
 	
 	Map<String, String> counterInstrument = new HashMap<String, String>();
@@ -22,16 +28,25 @@ public class Strategy implements Observer{
 		app.addLogonObserver(this);
 	}
 	
+	/**
+	 * Activated when user clicks Start button in GUI
+	 */
 	public void OnStrategyStart()
 	{
 		System.out.println("Strategy Started");
 	}
 	
+	/**
+	 * Activated when user clicks Stop button in GUI
+	 */
 	public void OnStrategyStop()
 	{
 		System.out.println("Strategy Stopped");
 	}
 
+	/**
+	 * Invoked when a message from Stock Exchange is received with new prices
+	 */
 	public void OnPriceUpdate(String symbol, Double price, Double volume, Side side) {
 		api.SendOrder(counterInstrument.get(symbol), getPrice(price, side), volume, (side == Side.BUY ? Side.SELL : Side.BUY));
 	}
@@ -43,6 +58,13 @@ public class Strategy implements Observer{
 		return current+delta;
 	}
 	
+	/** Actions to perform when requested trade operation is concluded on
+	 * Stock exchange
+	 * @param symbol
+	 * @param price
+	 * @param volume
+	 * @param side
+	 */
 	public void OnTradeDone(String symbol, Double price, Double volume, Side side)
 	{
 		/**
