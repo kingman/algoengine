@@ -22,14 +22,14 @@ public class Strategy implements Observer{
 		app.addLogonObserver(this);
 	}
 	
-	void OnStrategyStart()
+	public void OnStrategyStart()
 	{
-		
+		System.out.println("Strategy Started");
 	}
 	
-	void OnStrategyStop()
+	public void OnStrategyStop()
 	{
-		
+		System.out.println("Strategy Stopped");
 	}
 
 	public void OnPriceUpdate(String symbol, Double price, Double volume, Side side) {

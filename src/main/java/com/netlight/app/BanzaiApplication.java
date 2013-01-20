@@ -139,6 +139,10 @@ public class BanzaiApplication implements Application {
         } catch (Exception e) {
         }
     }
+    
+    public Strategy getTradingStrategy() {
+    	return strategy;
+    }
 
     public class MessageProcessor implements Runnable {
         private quickfix.Message message;

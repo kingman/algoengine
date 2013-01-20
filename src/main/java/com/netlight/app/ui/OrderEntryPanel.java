@@ -59,7 +59,10 @@ public class OrderEntryPanel extends JPanel implements Observer {
 //    private boolean stopEntered = false;
     private boolean sessionEntered = false;
 
-    private JTextField symbolTextField = new JTextField();
+//    private JTextField symbolTextField = new JTextField();
+    String [] symbols = {"ERIC B XSTO", "ERIC B BURG"};
+    private JComboBox<String> symbolComboBox = new JComboBox<String>(symbols);
+    
     private IntegerNumberTextField quantityTextField =
         new IntegerNumberTextField();
 
@@ -76,11 +79,14 @@ public class OrderEntryPanel extends JPanel implements Observer {
 
     private JComboBox sessionComboBox = new JComboBox();
 
-    private JLabel limitPriceLabel = new JLabel("Limit");
+    private JLabel limitPriceLabel = new JLabel("Limit (Price)");
 //    private JLabel stopPriceLabel = new JLabel("Stop");
 
     private JLabel messageLabel = new JLabel(" ");
     private JButton submitButton = new JButton("Submit");
+    
+    private JButton startStrategyButton = new JButton("Start Strategy");
+    private JButton stopStrategyButton = new JButton("Stop Strategy");
 
     private OrderTableModel orderTableModel = null;
     private transient BanzaiApplication application = null;
@@ -96,7 +102,7 @@ public class OrderEntryPanel extends JPanel implements Observer {
         application.addLogonObserver(this);
 
         SubmitActivator activator = new SubmitActivator();
-        symbolTextField.addKeyListener(activator);
+//        symbolTextField.addKeyListener(activator);
         quantityTextField.addKeyListener(activator);
         limitPriceTextField.addKeyListener(activator);
 //        stopPriceTextField.addKeyListener(activator);
@@ -127,30 +133,56 @@ public class OrderEntryPanel extends JPanel implements Observer {
 
         int x = 0;
         int y = 0;
+        
+        startStrategyButton.setEnabled(true);
+        startStrategyButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				application.getTradingStrategy().OnStrategyStart();
+				
+			}
+		});
+        stopStrategyButton.setEnabled(true);
+        stopStrategyButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				application.getTradingStrategy().OnStrategyStop();				
+			}
+		});
+        
+        add(startStrategyButton, x=0, ++y);
+        add(stopStrategyButton, ++x, y);
+        
 
-        add(new JLabel("Symbol"), x, y);
+        add(new JLabel("Side"), x=0, ++y);
         add(new JLabel("Quantity"), ++x, y );
-        add(new JLabel("Side"), ++x, y );
-        add(new JLabel("Type"), ++x, y );
-        constraints.ipadx = 30;
+        add(new JLabel("Symbol (Stock)"), ++x, y );
         add(limitPriceLabel, ++x, y );
+        constraints.ipadx = 30;
+        add(new JLabel("Type"), ++x, y );
 //        add(stopPriceLabel, ++x, y );
         constraints.ipadx = 0;
         add(new JLabel("TIF"), ++x, y);
         constraints.ipadx = 30;
 
-        symbolTextField.setName("SymbolTextField");
-        add(symbolTextField, x=0, ++y);
-        constraints.ipadx = 0;
+        sideComboBox.setName("SideComboBox");
+        add(sideComboBox, x=0, ++y);
         quantityTextField.setName("QuantityTextField");
         add(quantityTextField, ++x, y);
-        sideComboBox.setName("SideComboBox");
-        add(sideComboBox, ++x, y);
+//        symbolTextField.setName("SymbolTextField");
+//        add(symbolTextField, ++x, y);
+        symbolComboBox.setName("SymbolComboBox");
+        add(symbolComboBox, ++x, y);
+        
+        constraints.ipadx = 0;
+        limitPriceTextField.setName("LimitPriceTextField");
+        add(limitPriceTextField, ++x, y);
         
 //        typeComboBox.setName("TypeComboBox");
         add(typeBox, ++x, y);
-        limitPriceTextField.setName("LimitPriceTextField");
-        add(limitPriceTextField, ++x, y);
+        
 //        stopPriceTextField.setName("StopPriceTextField");
 //        add(stopPriceTextField, ++x, y);
 //        tifComboBox.setName("TifComboBox");
@@ -164,6 +196,9 @@ public class OrderEntryPanel extends JPanel implements Observer {
         submitButton.setName("SubmitButton");
         add(submitButton, x, y);
         constraints.gridwidth = 0;
+        
+        
+        
         add(messageLabel, 0, ++y);
 
 //        typeComboBox.addItemListener(new PriceListener());
@@ -258,7 +293,9 @@ public class OrderEntryPanel extends JPanel implements Observer {
             order.setType((OrderType) OrderType.LIMIT);
             order.setTIF((OrderTIF) OrderTIF.DAY);
 
-            order.setSymbol(symbolTextField.getText());
+//            order.setSymbol(symbolTextField.getText());
+            order.setSymbol((String)symbolComboBox.getSelectedItem());
+
             order.setQuantity(Integer.parseInt
                               (quantityTextField.getText()));
             order.setOpen(order.getQuantity());
@@ -280,9 +317,10 @@ public class OrderEntryPanel extends JPanel implements Observer {
         implements KeyListener, ItemListener {
         public void keyReleased(KeyEvent e) {
             Object obj = e.getSource();
-            if(obj == symbolTextField) {
-                symbolEntered = testField(obj);
-            } else if(obj == quantityTextField) {
+//            if(obj == symbolTextField) {
+//                symbolEntered = testField(obj);
+//            } else 
+        	if(obj == quantityTextField) {
                 quantityEntered = testField(obj);
             } else if(obj == limitPriceTextField) {
                 limitEntered = testField(obj);
