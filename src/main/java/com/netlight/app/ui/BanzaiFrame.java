@@ -42,7 +42,7 @@ public class BanzaiFrame extends JFrame {
     public BanzaiFrame(OrderTableModel orderTableModel, ExecutionTableModel executionTableModel,
             final BanzaiApplication application) {
         super();
-        setTitle("Banzai!");
+        setTitle("Netlight Trading App");
         setSize(600, 400);
 
         if (System.getProperties().containsKey("openfix")) {

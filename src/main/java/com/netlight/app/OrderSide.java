@@ -58,6 +58,11 @@ public class OrderSide {
         return array;
     }
 
+    static public Object[] getSimpleSides() {
+    	OrderSide[] sides = {BUY, SELL};
+        return sides;
+    }
+    
     public static OrderSide parse(String type)
     throws IllegalArgumentException {
         OrderSide result = known.get(type);

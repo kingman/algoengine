@@ -1,6 +1,5 @@
 package com.netlight.app.algo;
 
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
@@ -9,7 +8,6 @@ import java.util.Observer;
 import com.netlight.app.BanzaiApplication;
 import com.netlight.app.LogonEvent;
 import com.netlight.app.algo.API.Side;
-
 
 public class Strategy implements Observer{
 	
