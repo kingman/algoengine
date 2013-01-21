@@ -18,6 +18,8 @@ public class API{
 	private SessionID sessionID;
 	private Map<Side,Map<String, Order>> orderKeeper = new HashMap<Side, Map<String, Order>>();
 	
+	private boolean orderAdded = false;
+	
 	public API(BanzaiApplication app) {
 		this.app = app;
 		orderKeeper.put(Side.BUY, new HashMap<String, Order>());
@@ -57,13 +59,19 @@ public class API{
 
 	
 	public void SendOrder(String symbol, Double price, Double volume, Side side ) {
+		if(!orderAdded) {
 		Order order = getOrder(symbol, volume, side);
         order.setType(OrderType.LIMIT);
         order.setLimit(price);
         order.setSessionID(sessionID);
         orderKeeper.get(side).put(symbol, order);
 		app.send(order);
+		orderAdded = true;
 		System.out.println(MessageFormat.format("{0} {1} {2} for {3}", side, volume, symbol, price));
+		}
+		else {
+			ModifyOrder(symbol, price, volume, side);
+		}
 	}
 	public void SendMarketOrder(String symbol, Double volume, Side side ) {
 		Order order = getOrder(symbol, volume, side);

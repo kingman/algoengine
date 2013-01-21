@@ -21,6 +21,9 @@ public class Strategy implements Observer{
 	
 	Map<String, String> counterInstrument = new HashMap<String, String>();
 	
+	Side baiteSide = API.Side.SELL;
+	String baiteMarket = "BURG";
+	
 	public Strategy(BanzaiApplication app) {
 		counterInstrument.put("ERIC B XSTO", "ERIC B BURG");
 		counterInstrument.put("ERIC B BURG", "ERIC B XSTO");
@@ -48,7 +51,9 @@ public class Strategy implements Observer{
 	 * Invoked when a message from Stock Exchange is received with new prices
 	 */
 	public void OnPriceUpdate(String symbol, Double price, Double volume, Side side) {
-		api.SendOrder(counterInstrument.get(symbol), getPrice(price, side), volume, (side == Side.BUY ? Side.SELL : Side.BUY));
+		if(symbol.contains(baiteMarket) && side == baiteSide) {
+			api.SendOrder(counterInstrument.get(symbol), getPrice(price, side), volume, (side == Side.BUY ? Side.SELL : Side.BUY));
+		}
 	}
 	
 	private Double getPrice(Double current, Side side) {
