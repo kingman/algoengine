@@ -585,9 +585,9 @@ public class BanzaiApplication implements Application {
 
     Message populateCancelReplace(Order order, Order newOrder, quickfix.Message message) {
 
-        if (order.getQuantity() != newOrder.getQuantity())
+        //if (order.getQuantity() != newOrder.getQuantity())
             message.setField(new OrderQty(newOrder.getQuantity()));
-        if (!order.getLimit().equals(newOrder.getLimit()))
+        //if (!order.getLimit().equals(newOrder.getLimit()))
             message.setField(new Price(newOrder.getLimit().doubleValue()));
         return message;
     }

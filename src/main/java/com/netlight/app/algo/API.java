@@ -8,6 +8,7 @@ import quickfix.SessionID;
 
 import com.netlight.app.BanzaiApplication;
 import com.netlight.app.Order;
+import com.netlight.app.OrderBook;
 import com.netlight.app.OrderSide;
 import com.netlight.app.OrderTIF;
 import com.netlight.app.OrderType;
@@ -94,6 +95,7 @@ public class API{
 		Order newOrder = getOrder(symbol, volume, side);
 		newOrder.setLimit(price);
 		newOrder.setSessionID(sessionID);
+		newOrder.setType(OrderType.LIMIT);
 		Order oldOrder = orderKeeper.get(side).get(symbol);
 		orderKeeper.get(side).put(symbol, newOrder);
 		app.replace(oldOrder, newOrder);
@@ -101,5 +103,9 @@ public class API{
 	
 	public void setSessionID(SessionID sessionID) {
 		this.sessionID = sessionID;
+	}
+	
+	public OrderBook getOrderbook(String symbol) {
+		return app.getOrderbook(symbol);
 	}
 }

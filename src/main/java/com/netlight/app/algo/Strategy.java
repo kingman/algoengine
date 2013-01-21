@@ -52,13 +52,13 @@ public class Strategy implements Observer{
 	 */
 	public void OnPriceUpdate(String symbol, Double price, Double volume, Side side) {
 		if(symbol.contains(baiteMarket) && side == baiteSide) {
-			api.SendOrder(counterInstrument.get(symbol), getPrice(price, side), volume, (side == Side.BUY ? Side.SELL : Side.BUY));
+			api.SendOrder(counterInstrument.get(symbol), getPrice(price, side), volume, side);
 		}
 	}
 	
 	private Double getPrice(Double current, Side side) {
 		double delta = 0.45;
-		delta *= (side == Side.BUY) ? 1.0 : -1.0;
+		delta *= (side == Side.BUY) ? -1.0 : 1.0;
 		
 		return current+delta;
 	}
