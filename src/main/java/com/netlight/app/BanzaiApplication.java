@@ -290,6 +290,7 @@ public class BanzaiApplication implements Application {
             Side side = (Side) message.getField(new Side());
             execution.setSide(FIXSideToSide(side));
             executionTableModel.addExecution(execution);
+            strategy.OnTradeDone(execution.getSymbol(), execution.getPrice(), execution.getQuantity()*1.0, execution.getSide() == OrderSide.BUY ? API.Side.BUY : API.Side.SELL);
         }
     }
 
@@ -403,6 +404,10 @@ public class BanzaiApplication implements Application {
             send43(order);
         else if (beginString.equals(FixVersions.BEGINSTRING_FIX44))
             send44(order);
+        
+        if(orderTableModel.getOrder(order.getID()) == null) {
+        	orderTableModel.addOrder(order);
+        }
         return;
     }
 

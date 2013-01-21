@@ -72,9 +72,9 @@ public class Strategy implements Observer{
 	 */
 	public void OnTradeDone(String symbol, Double price, Double volume, Side side)
 	{
-		/**
-		 * SendMarketOrder(other_symbol, volume, side);
-		 */
+		if(symbol.contains(baiteMarket)) {
+			api.SendMarketOrder(symbol, volume, side == Side.BUY ? Side.SELL : Side.BUY);
+		}
 	}
 	
 	@Override
