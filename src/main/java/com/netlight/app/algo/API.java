@@ -78,6 +78,7 @@ public class API{
 		Order order = getOrder(symbol, volume, side);
 		order.setType(OrderType.MARKET);
 		order.setSessionID(sessionID);
+		order.setTIF(OrderTIF.IOC);
 		orderKeeper.get(side).put(symbol, order);
 		app.send(order);		
 	}

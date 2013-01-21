@@ -72,8 +72,8 @@ public class Strategy implements Observer{
 	 */
 	public void OnTradeDone(String symbol, Double price, Double volume, Side side)
 	{
-		if(symbol.contains(baiteMarket)) {
-			api.SendMarketOrder(symbol, volume, side == Side.BUY ? Side.SELL : Side.BUY);
+		if(!symbol.contains(baiteMarket)) {
+			api.SendMarketOrder(counterInstrument.get(symbol), volume, side == Side.BUY ? Side.SELL : Side.BUY);
 		}
 	}
 	
