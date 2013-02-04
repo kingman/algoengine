@@ -122,6 +122,8 @@ public class API{
 		for(String symbol : symbols) {
 			cancelOrder(symbol, Side.BUY);
 			cancelOrder(symbol, Side.SELL);
+			
 		}
+		orderAdded = false;
 	}
 }

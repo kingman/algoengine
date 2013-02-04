@@ -66,6 +66,15 @@ public class OrderTableModel extends AbstractTableModel {
 
         fireTableRowsInserted(row, row);
     }
+    
+    public void removeOrder(Order order) {
+    	Integer row = idToRow.get(order.getID());
+    	if(row != null) {
+    		rowToOrder.remove(row);
+    		idToRow.remove(order.getID());
+    		idToOrder.remove(order.getID());
+    	}
+    }
 
     public void updateOrder(Order order, String id) {
 
