@@ -5,20 +5,33 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.UUID;
-
+/**
+ * Singleton class for handling market data subscriptions and orderbooks
+ * @author bjorn
+ *
+ */
 public class MarketDataSubscriptionModel implements Observer {
-
+	private static MarketDataSubscriptionModel instance = null;
+	
 	BanzaiApplication app;
 	TwoWayMap OrderBooks = new TwoWayMap();
 	Map<String, OrderBook> keyToOrderbook = new HashMap<String, OrderBook>();
 	
-	public OrderBook getOrderbook(String stockKey) {
-		return keyToOrderbook.get(stockKey);		
+	public OrderBook getOrderbook(String symbol) {
+		return keyToOrderbook.get(symbol);		
 	}
 	
-	public MarketDataSubscriptionModel()
+	private MarketDataSubscriptionModel()
 	{
 		
+	}
+	public static MarketDataSubscriptionModel getInstance()
+	{
+		if (instance==null)
+		{
+			instance = new MarketDataSubscriptionModel();
+		}
+		return instance;
 	}
 	
 	public void setApplication(BanzaiApplication app)

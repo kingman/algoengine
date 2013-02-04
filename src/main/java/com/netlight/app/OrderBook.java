@@ -51,6 +51,22 @@ public class OrderBook {
 	public void addSellOrderDepth(Integer level, Double price, Double volume) {
 		sellSide.put(level, new OrderDepthEntry().setPrice(price).setVolume(volume));
 	}
+	public Double getBuyDepthPrice(Integer level)
+	{
+		return buySide.get(level) != null ? buySide.get(level).getPrice() : null;
+	}
+	public Double getBuyDepthVolume(Integer level)
+	{
+		return buySide.get(level) != null ? buySide.get(level).getVolume() : null;
+	}
+	public Double getSellDepthPrice(Integer level)
+	{
+		return sellSide.get(level) != null ? sellSide.get(level).getPrice() : null;
+	}
+	public Double getSellDepthVolume(Integer level)
+	{
+		return sellSide.get(level) != null ? sellSide.get(level).getVolume() : null;
+	}
 	public String toString()
 	{
 		return "OrderBook for " + this.symbol + " updated. BBO:" + this.getBestBidVolume() + "@" + this.getBestBid() + " / " + this.getBestAskVolume() + " @" + this.getBestAsk();

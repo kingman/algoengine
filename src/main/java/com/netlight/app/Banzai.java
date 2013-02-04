@@ -75,7 +75,7 @@ public class Banzai {
         
         OrderTableModel orderTableModel = new OrderTableModel();
         ExecutionTableModel executionTableModel = new ExecutionTableModel();
-        MarketDataSubscriptionModel marketDataSubscriptionModel = new MarketDataSubscriptionModel(); //Really ugly that this object has reference to application
+        MarketDataSubscriptionModel marketDataSubscriptionModel = MarketDataSubscriptionModel.getInstance(); 
         BanzaiApplication application = new BanzaiApplication(orderTableModel, executionTableModel, marketDataSubscriptionModel);
         marketDataSubscriptionModel.setApplication(application);
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);

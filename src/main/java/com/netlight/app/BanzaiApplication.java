@@ -41,6 +41,7 @@ import quickfix.Session;
 import quickfix.SessionID;
 import quickfix.SessionNotFound;
 import quickfix.UnsupportedMessageType;
+import quickfix.field.AggregatedBook;
 import quickfix.field.AvgPx;
 import quickfix.field.BeginString;
 import quickfix.field.BusinessRejectReason;
@@ -370,6 +371,7 @@ public class BanzaiApplication implements Application {
     			new MarketDepth()
     			);
     	marketDataRequest.set(new MDUpdateType(MDUpdateType.FULL_REFRESH));
+    	marketDataRequest.set(new AggregatedBook(true));
     	MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
     	MarketDataRequest.NoMDEntryTypes noMDEntryTypes = new MarketDataRequest.NoMDEntryTypes();
     	noRelatedSym.set(s);

@@ -50,6 +50,7 @@ public class BanzaiPanel extends JPanel
     private ExecutionPanel executionPanel = null;
     private CancelReplacePanel cancelReplacePanel = null;
     private OrderTableModel orderTableModel = null;
+    private MarketDataPanel marketDataPanel = null;
 
     public BanzaiPanel(OrderTableModel orderTableModel,
                        ExecutionTableModel executionTableModel,
@@ -69,7 +70,12 @@ public class BanzaiPanel extends JPanel
 
         constraints.gridx++;
         constraints.weighty = 10;
-
+        
+        marketDataPanel = new MarketDataPanel(new MarketDataTableModel("ERIC B BURG"));
+        add(marketDataPanel, constraints);
+        marketDataPanel = new MarketDataPanel(new MarketDataTableModel("ERIC B XSTO"));
+        add(marketDataPanel, constraints);        
+        
         JTabbedPane tabbedPane = new JTabbedPane();
         orderPanel = new OrderPanel(orderTableModel, application);
         executionPanel = new ExecutionPanel(executionTableModel);
