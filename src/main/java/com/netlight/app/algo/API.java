@@ -75,6 +75,17 @@ public class API{
 			ModifyOrder(symbol, price, volume, side);
 		}
 	}
+	
+	public void modifyOrderVolum(String symbol, Side side, Double deltaVolume) {
+		Order order = orderKeeper.get(side).get(symbol);
+		if(order != null) {
+			order.setOpen((int)(order.getOpen()-deltaVolume));
+			if (order.getOpen() == 0) {
+				orderKeeper.get(side).remove(symbol);
+				orderAdded =  false;				
+			}
+		}
+	}
 	public void SendMarketOrder(String symbol, Double volume, Side side ) {
 		Order order = getOrder(symbol, volume, side);
 		order.setType(OrderType.MARKET);
