@@ -23,6 +23,7 @@ public class Strategy implements Observer{
 	
 	Side baiteSide = API.Side.SELL;
 	String baiteMarket = "BURG";
+	private boolean strategyStarted = false;
 	
 	public Strategy(BanzaiApplication app) {
 		counterInstrument.put("ERIC B XSTO", "ERIC B BURG");
@@ -36,14 +37,16 @@ public class Strategy implements Observer{
 	 */
 	public void OnStrategyStart()
 	{
+		strategyStarted = true;
 		System.out.println("Strategy Started");
 	}
-	
 	/**
 	 * Activated when user clicks Stop button in GUI
 	 */
 	public void OnStrategyStop()
 	{
+		api.cancelAllOrder(counterInstrument.keySet());
+		strategyStarted = false;
 		System.out.println("Strategy Stopped");
 	}
 
@@ -51,7 +54,7 @@ public class Strategy implements Observer{
 	 * Invoked when a message from Stock Exchange is received with new prices
 	 */
 	public void OnPriceUpdate(String symbol, Double price, Double volume, Side side) {
-		if(symbol.contains(baiteMarket) && side == baiteSide) {
+		if(strategyStarted && symbol.contains(baiteMarket) && side == baiteSide) {
 			api.SendOrder(counterInstrument.get(symbol), getPrice(price, side), volume, side);
 		}
 	}

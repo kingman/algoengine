@@ -1,6 +1,7 @@
 package com.netlight.app.algo;
 
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -108,5 +109,19 @@ public class API{
 	
 	public OrderBook getOrderbook(String symbol) {
 		return app.getOrderbook(symbol);
+	}
+	
+	public void cancelOrder(String symbol, Side side) {
+		Order order = orderKeeper.get(side).remove(symbol);
+		if(order != null) {
+			app.cancel(order);
+		}
+	}
+	
+	public void cancelAllOrder(Collection<String> symbols) {
+		for(String symbol : symbols) {
+			cancelOrder(symbol, Side.BUY);
+			cancelOrder(symbol, Side.SELL);
+		}
 	}
 }
