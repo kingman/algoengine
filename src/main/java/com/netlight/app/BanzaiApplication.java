@@ -490,6 +490,9 @@ public class BanzaiApplication implements Application {
             cancel42(order);
         else if (beginString.equals("FIX.4.4"))
         	cancel44(order);
+        if(orderTableModel.getOrder(order.getID()) != null) {
+        	orderTableModel.removeOrder(order);
+        }
         return;
     }
 
