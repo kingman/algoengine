@@ -32,6 +32,21 @@ public class MarketDataTableModel extends AbstractTableModel implements Observer
 		// TODO Auto-generated method stub
 		return 4;
 	}
+	
+	public String getColumnName(int column) {
+		switch(column)
+		{
+		case 0:
+			return "Bid #";
+		case 1:
+			return "Bid";
+		case 2:
+			return "Ask";
+		case 3: 
+			return "Ask #";
+		}
+		return null;
+	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
