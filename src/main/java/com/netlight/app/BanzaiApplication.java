@@ -336,6 +336,9 @@ public class BanzaiApplication implements Application {
         MDEntryPx mDEntryPx = new MDEntryPx();
         MDEntrySize mDEntrySize = new MDEntrySize();
         MDEntryPositionNo mdEntryPositionNo = new MDEntryPositionNo();
+        
+        int maxBuyLevel = 0;
+        int maxSellLevel = 0;
     	for (int i = 1; i<=noMDEntries;i++){
     		message.getGroup(i, tmpGroup);
             tmpGroup.getField(mDEntryType);
@@ -345,15 +348,21 @@ public class BanzaiApplication implements Application {
             switch (mDEntryType.getValue()) {            
 				case '0':
 					orderBook.addBuyOrderDepth(mdEntryPositionNo.getValue(), mDEntryPx.getValue(), mDEntrySize.getValue());
+					if (mdEntryPositionNo.getValue() >= maxBuyLevel) 
+						maxBuyLevel = mdEntryPositionNo.getValue();
 					break;
 				case '1':
 					orderBook.addSellOrderDepth(mdEntryPositionNo.getValue(), mDEntryPx.getValue(), mDEntrySize.getValue());
+					if (mdEntryPositionNo.getValue() >= maxSellLevel) 
+						maxSellLevel = mdEntryPositionNo.getValue();
 					break;
 				default:
 					break;
 			}
     	}
-    	
+        orderBook.cleanMaxBuyLevel(maxBuyLevel);
+        orderBook.cleanMaxSellLevel(maxSellLevel);
+        orderBook.updateComplete();
     	strategy.OnPriceUpdate(orderBook.getSymbol(), orderBook.getBestAsk(), orderBook.getBestAskVolume(), API.Side.SELL);
     	strategy.OnPriceUpdate(orderBook.getSymbol(), orderBook.getBestBid(), orderBook.getBestBidVolume(), API.Side.BUY);
     }

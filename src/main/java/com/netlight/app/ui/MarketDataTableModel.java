@@ -1,10 +1,13 @@
 package com.netlight.app.ui;
 
+import java.util.Observable;
+import java.util.Observer;
+
 import javax.swing.table.AbstractTableModel;
 import com.netlight.app.OrderBook;
 import com.netlight.app.MarketDataSubscriptionModel;
 
-public class MarketDataTableModel extends AbstractTableModel {
+public class MarketDataTableModel extends AbstractTableModel implements Observer {
 	private MarketDataSubscriptionModel marketDataSubscriptionModel = null;
 	private OrderBook orderBook = null;
 	private String symbol = null;
@@ -36,7 +39,9 @@ public class MarketDataTableModel extends AbstractTableModel {
 		{
 			/** Initialization hack **/
 			orderBook = marketDataSubscriptionModel.getOrderbook(symbol);
-			if(orderBook == null)
+			if(orderBook != null)
+				orderBook.addObserver(this);
+			else
 				return null;
 		}
 		switch (columnIndex)
@@ -58,4 +63,11 @@ public class MarketDataTableModel extends AbstractTableModel {
 		
 	}
 
+	@Override
+	public void update(Observable o, Object arg) {
+		this.fireTableDataChanged();
+		
+	}
+
+		
 }

@@ -4,8 +4,9 @@ import java.awt.List;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
 
-public class OrderBook {
+public class OrderBook extends Observable {
 
 	String mdReqID;
 	String symbol;
@@ -66,6 +67,22 @@ public class OrderBook {
 	public Double getSellDepthVolume(Integer level)
 	{
 		return sellSide.get(level) != null ? sellSide.get(level).getVolume() : null;
+	}
+	
+	public void cleanMaxBuyLevel(int level)
+	{
+		for (int i = level+1; i < 6; i++)
+			buySide.remove(i);
+	}
+	public void cleanMaxSellLevel(int level)
+	{
+		for (int i = level+1; i < 6; i++)
+			sellSide.remove(i);
+	}
+	public void updateComplete()
+	{
+		setChanged();
+		notifyObservers();
 	}
 	public String toString()
 	{
