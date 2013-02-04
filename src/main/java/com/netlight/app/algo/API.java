@@ -76,10 +76,9 @@ public class API{
 		}
 	}
 	
-	public void modifyOrderVolum(String symbol, Side side, Double deltaVolume) {
+	public void modifyOrderVolum(String symbol, Side side) {
 		Order order = orderKeeper.get(side).get(symbol);
 		if(order != null) {
-			order.setOpen((int)(order.getOpen()-deltaVolume));
 			if (order.getOpen() == 0) {
 				orderKeeper.get(side).remove(symbol);
 				orderAdded =  false;				
@@ -100,8 +99,7 @@ public class API{
         order.setSide(OrderSide.parse(side.toString()));
         order.setTIF(OrderTIF.DAY);
         order.setSymbol(symbol);
-        order.setQuantity(volume.intValue());
-        order.setOpen(order.getQuantity());
+        order.setQuantity(volume.intValue()+order.getExecuted());
         return order;
 	}
 	public void ModifyOrder(String symbol, Double price, Double volume, Side side) {

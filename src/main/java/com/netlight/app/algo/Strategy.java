@@ -77,7 +77,7 @@ public class Strategy implements Observer{
 	{
 		if(!symbol.contains(baiteMarket)) {
 			api.SendMarketOrder(counterInstrument.get(symbol), volume, side == Side.BUY ? Side.SELL : Side.BUY);
-			api.modifyOrderVolum(symbol, side, volume);
+			api.modifyOrderVolum(symbol, side);
 		}
 	}
 	
