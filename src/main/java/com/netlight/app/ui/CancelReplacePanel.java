@@ -127,8 +127,8 @@ public class CancelReplacePanel extends JPanel {
             (new Double(limitPriceTextField.getText()));
             newOrder.setRejected(false);
             newOrder.setCanceled(false);
-            newOrder.setOpen(0);
-            newOrder.setExecuted(0);
+       //     newOrder.setOpen(0);
+       //     newOrder.setExecuted(0);
 
             application.replace(order, newOrder);
         }

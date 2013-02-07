@@ -100,14 +100,21 @@ public class API{
         order.setTIF(OrderTIF.DAY);
         order.setSymbol(symbol);
         order.setQuantity(volume.intValue()+order.getExecuted());
+        order.setOpen(volume.intValue()+order.getExecuted());
         return order;
 	}
 	public void ModifyOrder(String symbol, Double price, Double volume, Side side) {
-		Order newOrder = getOrder(symbol, volume, side);
+		Order oldOrder = orderKeeper.get(side).get(symbol);
+		Order newOrder = (Order) oldOrder.clone(); //getOrder(symbol, volume, side);
 		newOrder.setLimit(price);
+		newOrder.setQuantity(volume.intValue() + oldOrder.getExecuted());
+        newOrder.setRejected(false);
+        newOrder.setCanceled(false);
+        newOrder.setOpen(volume.intValue());
+        newOrder.setExecuted(oldOrder.getExecuted());
 		newOrder.setSessionID(sessionID);
 		newOrder.setType(OrderType.LIMIT);
-		Order oldOrder = orderKeeper.get(side).get(symbol);
+		
 		orderKeeper.get(side).put(symbol, newOrder);
 		app.replace(oldOrder, newOrder);
 	}

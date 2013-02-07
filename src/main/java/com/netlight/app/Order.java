@@ -41,7 +41,21 @@ public class Order implements Cloneable {
     private String ID = null;
     private String originalID = null;
     private static int nextID = 1;
-
+    
+    public String toString()
+    {
+    	String s = new String();
+    	s+="Order";
+    	s+="{";
+    	s+="	ID:" + ID;
+    	s+="	OriginalID" + originalID;
+    	s+="	Open:" + open + " executed:" + executed + " quantity:" + quantity;
+    	s+="    Message:" + message;
+    	s+="}";
+    	return s;
+    }
+    
+    
     public Order() {
         ID = generateID();
     }

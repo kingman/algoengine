@@ -598,8 +598,10 @@ public class BanzaiApplication implements Application {
                 typeToFIXType(order.getType()));
         
         message.set(new Symbol(order.getSymbol()));
+        //orderTableModel.replaceOrder(newOrder, order.getID());
         orderTableModel.addID(order, newOrder.getID());
         send(populateCancelReplace(order, newOrder, message), order.getSessionID());
+        System.out.println("Replacing: " + order.toString() + " with: " + newOrder.toString());
     }
 
     Message populateCancelReplace(Order order, Order newOrder, quickfix.Message message) {
