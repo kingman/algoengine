@@ -727,4 +727,8 @@ public class BanzaiApplication implements Application {
     	return marketDataSubscriptionModel.getOrderbook(stockKey);
     }
     
+    public Order getOrder(String orderId) {
+    	return orderTableModel.getOrder(orderId);
+    }
+    
 }

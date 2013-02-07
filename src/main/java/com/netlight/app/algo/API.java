@@ -18,14 +18,14 @@ public class API{
 	
 	BanzaiApplication app;
 	private SessionID sessionID;
-	private Map<Side,Map<String, Order>> orderKeeper = new HashMap<Side, Map<String, Order>>();
+	private Map<Side,Map<String, String>> orderKeeper = new HashMap<Side, Map<String, String>>();
 	
 	private boolean orderAdded = false;
 	
 	public API(BanzaiApplication app) {
 		this.app = app;
-		orderKeeper.put(Side.BUY, new HashMap<String, Order>());
-		orderKeeper.put(Side.SELL, new HashMap<String, Order>());
+		orderKeeper.put(Side.BUY, new HashMap<String, String>());
+		orderKeeper.put(Side.SELL, new HashMap<String, String>());
 	}
 	
 	Double GetBestBid(String symbol) {
@@ -66,7 +66,7 @@ public class API{
         order.setType(OrderType.LIMIT);
         order.setLimit(price);
         order.setSessionID(sessionID);
-        orderKeeper.get(side).put(symbol, order);
+        orderKeeper.get(side).put(symbol, order.getID());
 		app.send(order);
 		orderAdded = true;
 		System.out.println(MessageFormat.format("{0} {1} {2} for {3}", side, volume, symbol, price));
@@ -77,7 +77,8 @@ public class API{
 	}
 	
 	public void modifyOrderVolum(String symbol, Side side) {
-		Order order = orderKeeper.get(side).get(symbol);
+		String orderId = orderKeeper.get(side).get(symbol);
+		Order order = app.getOrder(orderId);
 		if(order != null) {
 			if (order.getOpen() == 0) {
 				orderKeeper.get(side).remove(symbol);
@@ -90,7 +91,7 @@ public class API{
 		order.setType(OrderType.MARKET);
 		order.setSessionID(sessionID);
 		order.setTIF(OrderTIF.IOC);
-		orderKeeper.get(side).put(symbol, order);
+		orderKeeper.get(side).put(symbol, order.getID());
 		app.send(order);		
 	}
 	
@@ -104,7 +105,8 @@ public class API{
         return order;
 	}
 	public void ModifyOrder(String symbol, Double price, Double volume, Side side) {
-		Order oldOrder = orderKeeper.get(side).get(symbol);
+		String orderId = orderKeeper.get(side).get(symbol);
+		Order oldOrder = app.getOrder(orderId);
 		Order newOrder = (Order) oldOrder.clone(); //getOrder(symbol, volume, side);
 		newOrder.setLimit(price);
 		newOrder.setQuantity(volume.intValue() + oldOrder.getExecuted());
@@ -114,8 +116,6 @@ public class API{
         newOrder.setExecuted(oldOrder.getExecuted());
 		newOrder.setSessionID(sessionID);
 		newOrder.setType(OrderType.LIMIT);
-		
-		orderKeeper.get(side).put(symbol, newOrder);
 		app.replace(oldOrder, newOrder);
 	}
 	
@@ -128,7 +128,8 @@ public class API{
 	}
 	
 	public void cancelOrder(String symbol, Side side) {
-		Order order = orderKeeper.get(side).remove(symbol);
+		String orderId = orderKeeper.get(side).remove(symbol);
+		Order order = app.getOrder(orderId);
 		if(order != null) {
 			app.cancel(order);
 		}
