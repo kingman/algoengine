@@ -54,6 +54,7 @@ import quickfix.field.HandlInst;
 import quickfix.field.LastPx;
 import quickfix.field.LastQty;
 import quickfix.field.LastShares;
+import quickfix.field.LeavesQty;
 import quickfix.field.LocateReqd;
 import quickfix.field.MDEntryPositionNo;
 import quickfix.field.MDEntryPx;
@@ -250,11 +251,17 @@ public class BanzaiApplication implements Application {
         	}
         }
 
-        if (fillSize.compareTo(BigDecimal.ZERO) > 0) {
-            order.setOpen(order.getOpen() - (int) Double.parseDouble(fillSize.toPlainString()));
+     //   if (fillSize.compareTo(BigDecimal.ZERO) > 0) {
+        //Always populate order values
+            order.setOpen(new Integer(message.getString(LeavesQty.FIELD)));
             order.setExecuted(new Integer(message.getString(CumQty.FIELD)));
             order.setAvgPx(new Double(message.getString(AvgPx.FIELD)));
-        }
+            order.setQuantity(new Integer(message.getString(OrderQty.FIELD)));
+            if(message.isSetField(Price.FIELD))
+            	order.setLimit(new Double(message.getString(Price.FIELD)));
+     //   }
+        
+        
         
         OrdStatus ordStatus = (OrdStatus) message.getField(new OrdStatus());
 
