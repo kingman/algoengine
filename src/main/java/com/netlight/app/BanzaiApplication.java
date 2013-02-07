@@ -558,16 +558,19 @@ public class BanzaiApplication implements Application {
 
 
     public void replace(Order order, Order newOrder) {
-        String beginString = order.getSessionID().getBeginString();
-        if (beginString.equals("FIX.4.0"))
-            replace40(order, newOrder);
-        else if (beginString.equals("FIX.4.1"))
-            replace41(order, newOrder);
-        else if (beginString.equals("FIX.4.2"))
-            replace42(order, newOrder);
-        else if (beginString.equals("FIX.4.4"))
-        	replace44(order, newOrder);
-        return;
+		if(order.getTransactionState() == Order.TransactionState.OK) {
+			order.setTransactionState(Order.TransactionState.PENDING);
+	        String beginString = order.getSessionID().getBeginString();
+	        if (beginString.equals("FIX.4.0"))
+	            replace40(order, newOrder);
+	        else if (beginString.equals("FIX.4.1"))
+	            replace41(order, newOrder);
+	        else if (beginString.equals("FIX.4.2"))
+	            replace42(order, newOrder);
+	        else if (beginString.equals("FIX.4.4"))
+	        	replace44(order, newOrder);
+	        return;
+		}
     }
 
     public void replace40(Order order, Order newOrder) {

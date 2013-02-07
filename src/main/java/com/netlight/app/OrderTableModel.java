@@ -82,6 +82,7 @@ public class OrderTableModel extends AbstractTableModel {
             String originalID = order.getID();
             order.setID(id);
             replaceOrder(order, originalID);
+            order.setTransactionState(Order.TransactionState.OK);
             return;
         }
 

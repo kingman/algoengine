@@ -41,6 +41,7 @@ public class Order implements Cloneable {
     private String ID = null;
     private String originalID = null;
     private static int nextID = 1;
+    private TransactionState transactionState = TransactionState.OK;
     
     public String toString()
     {
@@ -56,7 +57,17 @@ public class Order implements Cloneable {
     }
     
     
-    public Order() {
+    public TransactionState getTransactionState() {
+		return transactionState;
+	}
+
+
+	public void setTransactionState(TransactionState transactionState) {
+		this.transactionState = transactionState;
+	}
+
+
+	public Order() {
         ID = generateID();
     }
     public Order(String ID) {
@@ -191,5 +202,11 @@ public class Order implements Cloneable {
     }
     public String getOriginalID() {
         return originalID;
+    }
+    
+
+    public enum TransactionState {
+    	PENDING,
+    	OK
     }
 }
