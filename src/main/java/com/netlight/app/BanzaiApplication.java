@@ -47,6 +47,7 @@ import quickfix.field.BeginString;
 import quickfix.field.BusinessRejectReason;
 import quickfix.field.ClOrdID;
 import quickfix.field.CumQty;
+import quickfix.field.CxlRejReason;
 import quickfix.field.CxlType;
 import quickfix.field.DeliverToCompID;
 import quickfix.field.ExecID;
@@ -85,19 +86,25 @@ import quickfix.field.TimeInForce;
 import quickfix.field.TransactTime;
 import quickfix.fix44.MarketDataRequest;
 
+import com.netlight.app.Order.TransactionState;
 import com.netlight.app.algo.Strategy;
 import com.netlight.app.algo.API;
 
+
+
 public class BanzaiApplication implements Application {
     private DefaultMessageFactory messageFactory = new DefaultMessageFactory();
-    private OrderTableModel orderTableModel = null;
+    protected OrderTableModel orderTableModel = null;
     private ExecutionTableModel executionTableModel = null;
+    private PositionTableModel positionTableModel = null;
     private MarketDataSubscriptionModel marketDataSubscriptionModel = null;
     private ObservableOrder observableOrder = new ObservableOrder();
     private ObservableLogon observableLogon = new ObservableLogon();
     private Strategy strategy;
     private boolean isAvailable = true;
     private boolean isMissingField;
+    
+    private cachedAction cachedAction=null;
     
     static private TwoWayMap sideMap = new TwoWayMap();
     static private TwoWayMap typeMap = new TwoWayMap();
@@ -106,11 +113,14 @@ public class BanzaiApplication implements Application {
 
     public BanzaiApplication(OrderTableModel orderTableModel,
             ExecutionTableModel executionTableModel,
+            PositionTableModel positionTableModel,
             MarketDataSubscriptionModel marketDataSubscriptionModel) {
         this.orderTableModel = orderTableModel;
         this.executionTableModel = executionTableModel;
+        this.positionTableModel = positionTableModel;
         this.marketDataSubscriptionModel = marketDataSubscriptionModel;
         this.strategy = new Strategy(this);
+        this.cachedAction = new cachedAction(this, com.netlight.app.cachedAction.NONE);
     }
 
     public void onCreate(SessionID sessionID) {
@@ -224,7 +234,7 @@ public class BanzaiApplication implements Application {
     private void executionReport(Message message, SessionID sessionID) throws FieldNotFound {
 
         ExecID execID = (ExecID) message.getField(new ExecID());
-        if (alreadyProcessed(execID, sessionID))
+       if (alreadyProcessed(execID, sessionID))
             return;
 
         Order order = orderTableModel.getOrder(message.getField(new ClOrdID()).getValue());
@@ -298,8 +308,11 @@ public class BanzaiApplication implements Application {
             Side side = (Side) message.getField(new Side());
             execution.setSide(FIXSideToSide(side));
             executionTableModel.addExecution(execution);
+            positionTableModel.addExecution(execution);
             strategy.OnTradeDone(execution.getSymbol(), execution.getPrice(), execution.getQuantity()*1.0, execution.getSide() == OrderSide.BUY ? API.Side.BUY : API.Side.SELL);
         }
+        
+        cachedAction.execute();
     }
 
     private void cancelReject(Message message, SessionID sessionID) throws FieldNotFound {
@@ -315,7 +328,14 @@ public class BanzaiApplication implements Application {
             order.setMessage(message.getField(new Text()).getValue());
         } catch (FieldNotFound e) {
         }
-        orderTableModel.updateOrder(order, message.getField(new OrigClOrdID()).getValue());
+        //Check for too late to cancel scenario
+        if(message.getField(new CxlRejReason()).getValue() == 0)
+        {
+        	orderTableModel.updateOrder(order, message.getField(new OrigClOrdID()).getValue());
+        	order.setOpen(0);
+        	//order.setCanceled(true);
+        }
+        
     }
 
     private boolean alreadyProcessed(ExecID execID, SessionID sessionID) {
@@ -500,16 +520,26 @@ public class BanzaiApplication implements Application {
 
     public void cancel(Order order) {
         String beginString = order.getSessionID().getBeginString();
-        if (beginString.equals("FIX.4.0"))
-            cancel40(order);
-        else if (beginString.equals("FIX.4.1"))
-            cancel41(order);
-        else if (beginString.equals("FIX.4.2"))
-            cancel42(order);
-        else if (beginString.equals("FIX.4.4"))
-        	cancel44(order);
-        if(orderTableModel.getOrder(order.getID()) != null) {
-        	orderTableModel.removeOrder(order);
+        
+        if(order.getTransactionState() == Order.TransactionState.OK)
+        {
+	        if (beginString.equals("FIX.4.0"))
+	            cancel40(order);
+	        else if (beginString.equals("FIX.4.1"))
+	            cancel41(order);
+	        else if (beginString.equals("FIX.4.2"))
+	            cancel42(order);
+	        else if (beginString.equals("FIX.4.4"))
+	        	cancel44(order);
+	       // if(orderTableModel.getOrder(order.getID()) != null) {
+	        //	orderTableModel.removeOrder(order);
+	        //}
+        }
+        else
+        {
+    		logHelper.logDebug("Caching delete modification for later since TS not OK");
+    		cachedAction = new cachedAction(this, com.netlight.app.cachedAction.DELETE);
+    		cachedAction.setOrder(order);
         }
         return;
     }
@@ -559,6 +589,7 @@ public class BanzaiApplication implements Application {
 
     public void replace(Order order, Order newOrder) {
 		if(order.getTransactionState() == Order.TransactionState.OK) {
+			logHelper.logDebug("Setting order with ID:" + order.getID() + " to TransactionState PENDING");
 			order.setTransactionState(Order.TransactionState.PENDING);
 	        String beginString = order.getSessionID().getBeginString();
 	        if (beginString.equals("FIX.4.0"))
@@ -570,6 +601,13 @@ public class BanzaiApplication implements Application {
 	        else if (beginString.equals("FIX.4.4"))
 	        	replace44(order, newOrder);
 	        return;
+		}
+		else if (cachedAction.action != com.netlight.app.cachedAction.DELETE) //Do not override a previous delete request
+		{
+				logHelper.logDebug("Caching order modification for later since TS not OK");
+				cachedAction = new cachedAction(this, com.netlight.app.cachedAction.MODIFY);
+				cachedAction.setOrder(order);
+				cachedAction.setDesiredReplaceOrder(newOrder);
 		}
     }
 
@@ -611,7 +649,7 @@ public class BanzaiApplication implements Application {
         //orderTableModel.replaceOrder(newOrder, order.getID());
         orderTableModel.addID(order, newOrder.getID());
         send(populateCancelReplace(order, newOrder, message), order.getSessionID());
-        System.out.println("Replacing: " + order.toString() + " with: " + newOrder.toString());
+        logHelper.logDebug("Replacing: \n" + order.toString() + " with: \n" + newOrder.toString());
     }
 
     Message populateCancelReplace(Order order, Order newOrder, quickfix.Message message) {
@@ -734,4 +772,61 @@ public class BanzaiApplication implements Application {
     	return orderTableModel.getOrder(orderId);
     }
     
+}
+
+class cachedAction
+{
+	public static final int NONE = 0;
+	public static final int MODIFY = 1;
+	public static final int DELETE = 2;
+	
+	public int action;
+	
+	private Order oldOrder;
+	private Order desiredReplaceOrder;
+	private BanzaiApplication app;
+	private boolean executed = false;
+
+	public cachedAction(BanzaiApplication app, int action)
+	{
+		this.app=app;
+		this.action=action;
+	}
+	public void setOrder(Order oldOrder)
+	{
+		this.oldOrder = oldOrder;
+	}
+	public void setDesiredReplaceOrder(Order desiredReplaceOrder)
+	{
+		this.desiredReplaceOrder = desiredReplaceOrder;
+	}
+	public void execute()
+	{
+		if(!executed && oldOrder != null)
+		{
+			Order currentOrder = app.orderTableModel.getOrder(oldOrder.getID());
+			if(currentOrder.getTransactionState() == Order.TransactionState.OK)
+			{
+				if(action == MODIFY)
+				{
+			    	if(desiredReplaceOrder!=null)
+			    	{	
+			    			logHelper.logDebug("Sending cached order modification since TS is now OK");
+			    			app.replace(currentOrder, desiredReplaceOrder);
+			    			oldOrder = null;
+			    			desiredReplaceOrder = null;
+			    			executed=true;
+			    	}
+				}
+				else if(action == DELETE)
+				{
+					logHelper.logDebug("Sending cached order delete since TS is now OK");
+					app.cancel(currentOrder);
+					executed=true;
+				}
+			}
+		}
+		
+	}
+	
 }

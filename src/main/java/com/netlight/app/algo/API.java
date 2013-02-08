@@ -13,6 +13,7 @@ import com.netlight.app.OrderBook;
 import com.netlight.app.OrderSide;
 import com.netlight.app.OrderTIF;
 import com.netlight.app.OrderType;
+import com.netlight.app.logHelper;
 
 public class API{
 	
@@ -61,37 +62,45 @@ public class API{
 
 	
 	public void SendOrder(String symbol, Double price, Double volume, Side side ) {
+		String orderId = orderKeeper.get(side).get(symbol);
+		Order oldOrder = app.getOrder(orderId);
+		if(oldOrder == null)
+		{
+			orderAdded=false;
+			logHelper.logDebug("Marked order for " + symbol + "/" + side + " as inactive");
+		}
+		else
+		{
+			if(oldOrder.getOpen() == 0 || oldOrder.getCanceled() == true)
+			{
+				orderKeeper.get(side).remove(symbol);
+				orderAdded =  false;
+				logHelper.logDebug("Marked order for " + symbol + "/" + side + " as inactive");
+			}
+		}
+		
 		if(!orderAdded) {
-		Order order = getOrder(symbol, volume, side);
-        order.setType(OrderType.LIMIT);
-        order.setLimit(price);
-        order.setSessionID(sessionID);
-        orderKeeper.get(side).put(symbol, order.getID());
-		app.send(order);
-		orderAdded = true;
-		System.out.println(MessageFormat.format("{0} {1} {2} for {3}", side, volume, symbol, price));
+			Order order = getOrder(symbol, volume, side);
+	        order.setType(OrderType.LIMIT);
+	        order.setLimit(price);
+	        order.setSessionID(sessionID);
+	        orderKeeper.get(side).put(symbol, order.getID());
+			app.send(order);
+			orderAdded = true;
+			logHelper.log("Sending new order:" + MessageFormat.format("{0} {1} {2} for {3}", side, volume, symbol, price));
 		}
 		else {
 			ModifyOrder(symbol, price, volume, side);
 		}
 	}
 	
-	public void modifyOrderVolum(String symbol, Side side) {
-		String orderId = orderKeeper.get(side).get(symbol);
-		Order order = app.getOrder(orderId);
-		if(order != null) {
-			if (order.getOpen() == 0) {
-				orderKeeper.get(side).remove(symbol);
-				orderAdded =  false;				
-			}
-		}
-	}
 	public void SendMarketOrder(String symbol, Double volume, Side side ) {
 		Order order = getOrder(symbol, volume, side);
 		order.setType(OrderType.MARKET);
 		order.setSessionID(sessionID);
 		order.setTIF(OrderTIF.IOC);
 		orderKeeper.get(side).put(symbol, order.getID());
+		logHelper.logDebug("Sending market order: " + side + " " + volume + "@" + symbol);
 		app.send(order);		
 	}
 	
@@ -116,6 +125,7 @@ public class API{
         newOrder.setExecuted(oldOrder.getExecuted());
 		newOrder.setSessionID(sessionID);
 		newOrder.setType(OrderType.LIMIT);
+		logHelper.logDebug("Modifying order:" + MessageFormat.format("{0} {1} {2} for {3}", side, volume, symbol, price));
 		app.replace(oldOrder, newOrder);
 	}
 	
@@ -133,9 +143,11 @@ public class API{
 		if(order != null) {
 			app.cancel(order);
 		}
+		logHelper.logDebug("Sent order cancel request for " + symbol + " " + side);
 	}
 	
 	public void cancelAllOrder(Collection<String> symbols) {
+		logHelper.logDebug("Canceling all orders");
 		for(String symbol : symbols) {
 			cancelOrder(symbol, Side.BUY);
 			cancelOrder(symbol, Side.SELL);

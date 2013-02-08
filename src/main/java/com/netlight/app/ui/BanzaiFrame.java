@@ -33,22 +33,23 @@ import com.netlight.app.Banzai;
 import com.netlight.app.BanzaiApplication;
 import com.netlight.app.ExecutionTableModel;
 import com.netlight.app.OrderTableModel;
+import com.netlight.app.PositionTableModel;
 
 /**
  * Main application window
  */
 public class BanzaiFrame extends JFrame {
 
-    public BanzaiFrame(OrderTableModel orderTableModel, ExecutionTableModel executionTableModel,
+    public BanzaiFrame(OrderTableModel orderTableModel, ExecutionTableModel executionTableModel, PositionTableModel positionTableModel,
             final BanzaiApplication application) {
         super();
         setTitle("Netlight Trading App");
-        setSize(600, 400);
+        setSize(800, 1000);
 
         if (System.getProperties().containsKey("openfix")) {
             createMenuBar(application);
         }
-        getContentPane().add(new BanzaiPanel(orderTableModel, executionTableModel, application),
+        getContentPane().add(new BanzaiPanel(orderTableModel, executionTableModel, positionTableModel, application),
                 BorderLayout.CENTER);
         setVisible(true);
     }

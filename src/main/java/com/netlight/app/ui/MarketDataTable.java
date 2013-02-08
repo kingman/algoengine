@@ -17,6 +17,9 @@ public class MarketDataTable extends JTable {
 
 	public MarketDataTable(MarketDataTableModel marketDataTableModel) {
         super(marketDataTableModel);
+		setRowSelectionAllowed(false);
+		setColumnSelectionAllowed(false);
+		setCellSelectionEnabled(false); 
     }
 
     public Component prepareRenderer(TableCellRenderer renderer,

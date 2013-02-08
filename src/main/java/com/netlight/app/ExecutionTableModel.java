@@ -94,7 +94,7 @@ public class ExecutionTableModel extends AbstractTableModel {
 
     public Object getValueAt(int rowIndex, int columnIndex) {
         Execution execution = rowToExecution.get
-                              (Integer.valueOf(rowIndex));
+                              (rowToExecution.size() - 1 - Integer.valueOf(rowIndex));
 
         switch(columnIndex) {
         case SYMBOL:

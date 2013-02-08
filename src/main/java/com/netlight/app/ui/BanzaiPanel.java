@@ -38,6 +38,7 @@ import com.netlight.app.BanzaiApplication;
 import com.netlight.app.ExecutionTableModel;
 import com.netlight.app.Order;
 import com.netlight.app.OrderTableModel;
+import com.netlight.app.PositionTableModel;
 
 /**
  *  Main content panel
@@ -51,9 +52,11 @@ public class BanzaiPanel extends JPanel
     private CancelReplacePanel cancelReplacePanel = null;
     private OrderTableModel orderTableModel = null;
     private MarketDataPanel marketDataPanel = null;
+    private PositionPanel positionPanel = null;
 
     public BanzaiPanel(OrderTableModel orderTableModel,
                        ExecutionTableModel executionTableModel,
+                       PositionTableModel positionTableModel,
                        BanzaiApplication application) {
         setName("BanzaiPanel");
         this.orderTableModel = orderTableModel;
@@ -74,7 +77,10 @@ public class BanzaiPanel extends JPanel
         marketDataPanel = new MarketDataPanel(new MarketDataTableModel("ERIC B BURG"));
         add(marketDataPanel, constraints);
         marketDataPanel = new MarketDataPanel(new MarketDataTableModel("ERIC B XSTO"));
-        add(marketDataPanel, constraints);        
+        add(marketDataPanel, constraints); 
+        
+        positionPanel = new PositionPanel(positionTableModel);
+        add(positionPanel,constraints);
         
         JTabbedPane tabbedPane = new JTabbedPane();
         orderPanel = new OrderPanel(orderTableModel, application);

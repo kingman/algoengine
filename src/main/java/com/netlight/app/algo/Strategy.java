@@ -7,6 +7,7 @@ import java.util.Observer;
 
 import com.netlight.app.BanzaiApplication;
 import com.netlight.app.LogonEvent;
+import com.netlight.app.logHelper;
 import com.netlight.app.algo.API.Side;
 
 public class Strategy implements Observer{
@@ -52,10 +53,17 @@ public class Strategy implements Observer{
 
 	/**
 	 * Invoked when a message from Stock Exchange is received with new prices
+	 * Note that price can be null, indicating no price available
 	 */
 	public void OnPriceUpdate(String symbol, Double price, Double volume, Side side) {
+		logHelper.logDebug("OnPriceUpdate called()");
+		
+		
 		if(strategyStarted && symbol.contains(baiteMarket) && side == baiteSide) {
-			api.SendOrder(counterInstrument.get(symbol), getPrice(price, side), volume, side);
+			if(price != null)
+				api.SendOrder(counterInstrument.get(symbol), getPrice(price, side), volume, side);
+			else
+				api.cancelOrder(counterInstrument.get(symbol), side);
 		}
 	}
 	
@@ -75,9 +83,10 @@ public class Strategy implements Observer{
 	 */
 	public void OnTradeDone(String symbol, Double price, Double volume, Side side)
 	{
+		logHelper.logDebug("OnTradeDone called()");
+		
 		if(!symbol.contains(baiteMarket)) {
 			api.SendMarketOrder(counterInstrument.get(symbol), volume, side == Side.BUY ? Side.SELL : Side.BUY);
-			api.modifyOrderVolum(symbol, side);
 		}
 	}
 	

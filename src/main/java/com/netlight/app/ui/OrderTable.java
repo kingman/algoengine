@@ -41,26 +41,27 @@ public class OrderTable extends JTable implements MouseListener {
     public Component prepareRenderer(TableCellRenderer renderer,
                                      int row, int column) {
         Order order = (Order)((OrderTableModel)dataModel).getOrder(row);
-
-        int open = order.getOpen();
-        int executed = order.getExecuted();
-        boolean rejected = order.getRejected();
-        boolean canceled = order.getCanceled();
-
-        DefaultTableCellRenderer r = (DefaultTableCellRenderer)renderer;
-        r.setForeground(Color.black);
-
-        if(rejected)
-            r.setBackground(Color.red);
-        else if(canceled)
-            r.setBackground(Color.white);
-        else if(open == 0 && executed == 0)
-            r.setBackground(Color.yellow);
-        else if(open > 0)
-            r.setBackground(Color.green);
-        else if(open == 0)
-            r.setBackground(Color.white);
-
+        if(order != null)
+        {   
+	        int open = order.getOpen();
+	        int executed = order.getExecuted();
+	        boolean rejected = order.getRejected();
+	        boolean canceled = order.getCanceled();
+	
+	        DefaultTableCellRenderer r = (DefaultTableCellRenderer)renderer;
+	        r.setForeground(Color.black);
+	
+	        if(rejected)
+	            r.setBackground(Color.red);
+	        else if(canceled)
+	            r.setBackground(Color.white);
+	        else if(open == 0 && executed == 0)
+	            r.setBackground(Color.yellow);
+	        else if(open > 0)
+	            r.setBackground(Color.green);
+	        else if(open == 0)
+	            r.setBackground(Color.white);
+        }
         return super.prepareRenderer(renderer, row, column);
     }
 

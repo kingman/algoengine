@@ -75,11 +75,12 @@ public class Banzai {
         
         OrderTableModel orderTableModel = new OrderTableModel();
         ExecutionTableModel executionTableModel = new ExecutionTableModel();
+        PositionTableModel positionTableModel = new PositionTableModel();
         MarketDataSubscriptionModel marketDataSubscriptionModel = MarketDataSubscriptionModel.getInstance(); 
-        BanzaiApplication application = new BanzaiApplication(orderTableModel, executionTableModel, marketDataSubscriptionModel);
+        BanzaiApplication application = new BanzaiApplication(orderTableModel, executionTableModel, positionTableModel, marketDataSubscriptionModel);
         marketDataSubscriptionModel.setApplication(application);
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
-        LogFactory logFactory = new ScreenLogFactory(true, true, true, logHeartbeats);
+        LogFactory logFactory = new ScreenLogFactory(logHelper.logEnabled, logHelper.logEnabled, logHelper.logEnabled, logHeartbeats);
         MessageFactory messageFactory = new DefaultMessageFactory();
 
         initiator = new SocketInitiator(application, messageStoreFactory, settings, logFactory,
@@ -88,7 +89,7 @@ public class Banzai {
         JmxExporter exporter = new JmxExporter();
         exporter.export(initiator);
         
-        frame = new BanzaiFrame(orderTableModel, executionTableModel, application);
+        frame = new BanzaiFrame(orderTableModel, executionTableModel, positionTableModel, application);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     }
 

@@ -74,15 +74,18 @@ public class OrderTableModel extends AbstractTableModel {
     		idToRow.remove(order.getID());
     		idToOrder.remove(order.getID());
     	}
+    	
     }
 
     public void updateOrder(Order order, String id) {
 
+        
         if(!id.equals(order.getID())) {
+            logHelper.logDebug("Setting order with ID:" + order.getID() + " to TransactionState OK");
+            order.setTransactionState(Order.TransactionState.OK);
             String originalID = order.getID();
             order.setID(id);
             replaceOrder(order, originalID);
-            order.setTransactionState(Order.TransactionState.OK);
             return;
         }
 
@@ -138,7 +141,7 @@ public class OrderTableModel extends AbstractTableModel {
     }
 
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Order order = rowToOrder.get(Integer.valueOf(rowIndex));
+        Order order = rowToOrder.get(rowToOrder.size() - 1 -Integer.valueOf(rowIndex));
         switch(columnIndex) {
         case SYMBOL:
             return order.getSymbol();
