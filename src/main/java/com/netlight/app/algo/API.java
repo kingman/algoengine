@@ -62,10 +62,10 @@ public class API{
 	};
 
 	/**
-	 * For the specified instrument and side, try to find an existing active market order.
+	 * For the specified instrument and side, try to find an existing active order.
 	 * If no active order is found a new order is send to market according to the specified
 	 * price, volume, side and instrument.
-	 * If there exist an active market order an order modification is done according to the
+	 * If there exist an active order an order modification is done according to the
 	 * specified price and volume.
 	 * @param instrumentId
 	 * @param price
@@ -132,7 +132,7 @@ public class API{
         order.setOpen(volume.intValue()+order.getExecuted());
         return order;
 	}
-	public void ModifyOrder(String symbol, Double price, Double volume, Side side) {
+	private void ModifyOrder(String symbol, Double price, Double volume, Side side) {
 		String orderId = orderKeeper.get(side).get(symbol);
 		Order oldOrder = app.getOrder(orderId);
 		Order newOrder = (Order) oldOrder.clone(); //getOrder(symbol, volume, side);
