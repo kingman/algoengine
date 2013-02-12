@@ -22,8 +22,8 @@ public class Strategy implements Observer{
 	
 	Map<String, String> counterInstrument = new HashMap<String, String>();
 	
-	Side baiteSide = API.Side.SELL;
-	String baiteMarket = "BURG";
+	Side hedgeIntrument = API.Side.SELL;
+	String hedgeMarket = "BURG";
 	private boolean strategyStarted = false;
 	
 	public Strategy(BanzaiApplication app) {
@@ -59,9 +59,9 @@ public class Strategy implements Observer{
 		logHelper.logDebug("OnPriceUpdate called()");
 		
 		
-		if(strategyStarted && symbol.contains(baiteMarket) && side == baiteSide) {
+		if(strategyStarted && symbol.contains(hedgeMarket) && side == hedgeIntrument) {
 			if(price != null)
-				api.SendOrder(counterInstrument.get(symbol), getPrice(price, side), volume, side);
+				api.sendOrModifyOrder(counterInstrument.get(symbol), getPrice(price, side), volume, side);
 			else
 				api.cancelOrder(counterInstrument.get(symbol), side);
 		}
@@ -85,7 +85,7 @@ public class Strategy implements Observer{
 	{
 		logHelper.logDebug("OnTradeDone called()");
 		
-		if(!symbol.contains(baiteMarket)) {
+		if(!symbol.contains(hedgeMarket)) {
 			api.SendMarketOrder(counterInstrument.get(symbol), volume, side == Side.BUY ? Side.SELL : Side.BUY);
 		}
 	}

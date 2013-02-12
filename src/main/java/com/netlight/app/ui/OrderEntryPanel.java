@@ -53,7 +53,7 @@ import com.netlight.app.OrderTableModel;
 import com.netlight.app.OrderType;
 
 public class OrderEntryPanel extends JPanel implements Observer {
-    private boolean symbolEntered = false;
+    private boolean symbolEntered = true;
     private boolean quantityEntered = false;
     private boolean limitEntered = false;
 //    private boolean stopEntered = false;
@@ -87,6 +87,7 @@ public class OrderEntryPanel extends JPanel implements Observer {
     
     private JButton startStrategyButton = new JButton("Start Strategy");
     private JButton stopStrategyButton = new JButton("Stop Strategy");
+
 
     private OrderTableModel orderTableModel = null;
     private transient BanzaiApplication application = null;
@@ -140,15 +141,19 @@ public class OrderEntryPanel extends JPanel implements Observer {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				application.getTradingStrategy().OnStrategyStart();
+				startStrategyButton.setEnabled(false);
+				stopStrategyButton.setEnabled(true);
 				
 			}
 		});
-        stopStrategyButton.setEnabled(true);
+        stopStrategyButton.setEnabled(false);
         stopStrategyButton.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				application.getTradingStrategy().OnStrategyStop();				
+				application.getTradingStrategy().OnStrategyStop();
+				startStrategyButton.setEnabled(true);
+				stopStrategyButton.setEnabled(false);
 			}
 		});
         

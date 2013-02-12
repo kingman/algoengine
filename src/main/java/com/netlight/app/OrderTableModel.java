@@ -118,7 +118,7 @@ public class OrderTableModel extends AbstractTableModel {
     }
 
     public Order getOrder(int row) {
-        return rowToOrder.get(Integer.valueOf(row));
+        return rowToOrder.get( rowToOrder.size() - 1 -Integer.valueOf(row));
     }
 
     public void setValueAt(Object value, int rowIndex,

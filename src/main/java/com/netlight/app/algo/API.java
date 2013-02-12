@@ -29,6 +29,7 @@ public class API{
 		orderKeeper.put(Side.SELL, new HashMap<String, String>());
 	}
 	
+	
 	Double GetBestBid(String symbol) {
 		return app.getOrderbook(symbol).getBestBid();
 	}
@@ -60,47 +61,65 @@ public class API{
 		}
 	};
 
-	
-	public void SendOrder(String symbol, Double price, Double volume, Side side ) {
-		String orderId = orderKeeper.get(side).get(symbol);
+	/**
+	 * For the specified instrument and side, try to find an existing active market order.
+	 * If no active order is found a new order is send to market according to the specified
+	 * price, volume, side and instrument.
+	 * If there exist an active market order an order modification is done according to the
+	 * specified price and volume.
+	 * @param instrumentId
+	 * @param price
+	 * @param volume
+	 * @param side
+	 */
+	public void sendOrModifyOrder(String instrumentId, Double price, Double volume, Side side ) {
+		String orderId = orderKeeper.get(side).get(instrumentId);
 		Order oldOrder = app.getOrder(orderId);
 		if(oldOrder == null)
 		{
 			orderAdded=false;
-			logHelper.logDebug("Marked order for " + symbol + "/" + side + " as inactive");
+			logHelper.logDebug("Marked order for " + instrumentId + "/" + side + " as inactive");
 		}
 		else
 		{
 			if(oldOrder.getOpen() == 0 || oldOrder.getCanceled() == true)
 			{
-				orderKeeper.get(side).remove(symbol);
+				orderKeeper.get(side).remove(instrumentId);
 				orderAdded =  false;
-				logHelper.logDebug("Marked order for " + symbol + "/" + side + " as inactive");
+				logHelper.logDebug("Marked order for " + instrumentId + "/" + side + " as inactive");
 			}
 		}
 		
 		if(!orderAdded) {
-			Order order = getOrder(symbol, volume, side);
+			Order order = getOrder(instrumentId, volume, side);
 	        order.setType(OrderType.LIMIT);
 	        order.setLimit(price);
 	        order.setSessionID(sessionID);
-	        orderKeeper.get(side).put(symbol, order.getID());
+	        orderKeeper.get(side).put(instrumentId, order.getID());
 			app.send(order);
 			orderAdded = true;
-			logHelper.log("Sending new order:" + MessageFormat.format("{0} {1} {2} for {3}", side, volume, symbol, price));
+			logHelper.log("Sending new order:" + MessageFormat.format("{0} {1} {2} for {3}", side, volume, instrumentId, price));
 		}
 		else {
-			ModifyOrder(symbol, price, volume, side);
+			ModifyOrder(instrumentId, price, volume, side);
 		}
 	}
 	
-	public void SendMarketOrder(String symbol, Double volume, Side side ) {
-		Order order = getOrder(symbol, volume, side);
+	/**
+	 * Send an at-market order according to the specified instrument, volume and side.
+	 * market order means that order will be executed based on the best price on 
+	 * the market at the moment.
+	 * @param instrumentId
+	 * @param volume
+	 * @param side
+	 */
+	public void SendMarketOrder(String instrumentId, Double volume, Side side ) {
+		Order order = getOrder(instrumentId, volume, side);
 		order.setType(OrderType.MARKET);
 		order.setSessionID(sessionID);
 		order.setTIF(OrderTIF.IOC);
-		orderKeeper.get(side).put(symbol, order.getID());
-		logHelper.logDebug("Sending market order: " + side + " " + volume + "@" + symbol);
+		orderKeeper.get(side).put(instrumentId, order.getID());
+		logHelper.logDebug("Sending market order: " + side + " " + volume + "@" + instrumentId);
 		app.send(order);		
 	}
 	
@@ -150,8 +169,7 @@ public class API{
 		logHelper.logDebug("Canceling all orders");
 		for(String symbol : symbols) {
 			cancelOrder(symbol, Side.BUY);
-			cancelOrder(symbol, Side.SELL);
-			
+			cancelOrder(symbol, Side.SELL);			
 		}
 		orderAdded = false;
 	}
