@@ -20,6 +20,9 @@
 package com.netlight.app;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Observable;
@@ -30,6 +33,7 @@ import javax.swing.SwingUtilities;
 import quickfix.Application;
 import quickfix.DefaultMessageFactory;
 import quickfix.DoNotSend;
+import quickfix.DoubleField;
 import quickfix.FieldNotFound;
 import quickfix.FixVersions;
 import quickfix.Group;
@@ -40,6 +44,7 @@ import quickfix.RejectLogon;
 import quickfix.Session;
 import quickfix.SessionID;
 import quickfix.SessionNotFound;
+import quickfix.StringField;
 import quickfix.UnsupportedMessageType;
 import quickfix.field.AggregatedBook;
 import quickfix.field.AvgPx;
@@ -72,6 +77,7 @@ import quickfix.field.OrdType;
 import quickfix.field.OrderQty;
 import quickfix.field.OrigClOrdID;
 import quickfix.field.Price;
+import quickfix.field.PriceType;
 import quickfix.field.RefMsgType;
 import quickfix.field.RefSeqNum;
 import quickfix.field.SenderCompID;
@@ -497,11 +503,16 @@ public class BanzaiApplication implements Application {
 
 
     public quickfix.Message populateOrder(Order order, quickfix.Message newOrderSingle) {
-
         OrderType type = order.getType();
-
         if (type == OrderType.LIMIT)
-            newOrderSingle.setField(new Price(order.getLimit().doubleValue()));
+        {
+            DecimalFormat formatter = new DecimalFormat("###.##");
+            DecimalFormatSymbols symbol = new DecimalFormatSymbols();
+            symbol.setDecimalSeparator('.');
+            formatter.setDecimalFormatSymbols(symbol);
+            newOrderSingle.setField(new StringField(44,formatter.format(order.getLimit())));   
+            
+        }
         else if (type == OrderType.STOP) {
             newOrderSingle.setField(new StopPx(order.getStop().doubleValue()));
         } else if (type == OrderType.STOP_LIMIT) {
@@ -657,7 +668,13 @@ public class BanzaiApplication implements Application {
         //if (order.getQuantity() != newOrder.getQuantity())
             message.setField(new OrderQty(newOrder.getQuantity()));
         //if (!order.getLimit().equals(newOrder.getLimit()))
-            message.setField(new Price(newOrder.getLimit().doubleValue()));
+            //message.setField(new Price(newOrder.getLimit()));
+            DecimalFormat formatter = new DecimalFormat("###.##");
+            DecimalFormatSymbols symbol = new DecimalFormatSymbols();
+            symbol.setDecimalSeparator('.');
+            formatter.setDecimalFormatSymbols(symbol);
+            message.setField(new StringField(44,formatter.format(newOrder.getLimit())));
+           logHelper.logDebug("Setting new price to " + newOrder.getLimit());
         return message;
     }
 

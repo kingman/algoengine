@@ -68,7 +68,7 @@ public class Strategy implements Observer{
 	}
 	
 	private Double getPrice(Double current, Side side) {
-		double delta = 0.45;
+		double delta = 0.05;
 		delta *= (side == Side.BUY) ? -1.0 : 1.0;
 		
 		return current+delta;

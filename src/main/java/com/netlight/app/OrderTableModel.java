@@ -92,7 +92,7 @@ public class OrderTableModel extends AbstractTableModel {
         Integer row = idToRow.get(order.getID());
         if(row == null)
             return;
-        fireTableRowsUpdated(row.intValue(), row.intValue());
+        fireTableRowsUpdated(rowToOrder.size() - 1 - row.intValue(), rowToOrder.size() - 1 - row.intValue());
     }
 
     public void replaceOrder(Order order, String originalID) {
@@ -105,7 +105,7 @@ public class OrderTableModel extends AbstractTableModel {
         idToRow.put(order.getID(), row);
         idToOrder.put(order.getID(), order);
 
-        fireTableRowsUpdated(row.intValue(), row.intValue());
+        fireTableRowsUpdated(rowToOrder.size() - 1 -row.intValue(), rowToOrder.size() - 1 -row.intValue());
     }
 
     public void addID(Order order, String newID) {
