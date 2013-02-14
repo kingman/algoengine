@@ -1,7 +1,5 @@
 package com.netlight.app.algo;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -19,11 +17,6 @@ public class Strategy implements Observer{
 	
 	
 	API api;
-	
-	Map<String, String> counterInstrument = new HashMap<String, String>();
-	
-	Side hedgeIntrument = API.Side.SELL;
-	String hedgeMarket = "BURG";
 	private boolean strategyStarted = false;
 	
 	/**
@@ -33,8 +26,6 @@ public class Strategy implements Observer{
 	 * @param app
 	 */
 	public Strategy(BanzaiApplication app) {
-		counterInstrument.put("ERIC B XSTO", "ERIC B BURG");
-		counterInstrument.put("ERIC B BURG", "ERIC B XSTO");
 		this.api = new API(app);
 		app.addLogonObserver(this);
 	}
@@ -44,7 +35,6 @@ public class Strategy implements Observer{
 	 */
 	public void OnStrategyStart()
 	{
-		strategyStarted = true;
 		System.out.println("Strategy Started");
 	}
 	/**
@@ -52,8 +42,6 @@ public class Strategy implements Observer{
 	 */
 	public void OnStrategyStop()
 	{
-		api.cancelAllOrder(counterInstrument.keySet());
-		strategyStarted = false;
 		System.out.println("Strategy Stopped");
 	}
 
@@ -62,23 +50,13 @@ public class Strategy implements Observer{
 	 * Note that price can be null, indicating no price available
 	 */
 	public void OnPriceUpdate(String symbol, Double price, Double volume, Side side) {
-		logHelper.logDebug("OnPriceUpdate called()");
+		logHelper.logDebug("OnPriceUpdate called()");		
 		
-		
-		if(strategyStarted && symbol.contains(hedgeMarket) && side == hedgeIntrument) {
-			if(price != null)
-				api.sendOrModifyOrder(counterInstrument.get(symbol), getPrice(price, side), volume, side);
-			else
-				api.cancelOrder(counterInstrument.get(symbol), side);
+		if(strategyStarted) {
+
 		}
 	}
 	
-	private Double getPrice(Double current, Side side) {
-		double delta = 0.05;
-		delta *= (side == Side.BUY) ? -1.0 : 1.0;
-		
-		return current+delta;
-	}
 	
 	/** Actions to perform when requested trade operation is concluded on
 	 * Stock exchange
@@ -89,11 +67,7 @@ public class Strategy implements Observer{
 	 */
 	public void OnTradeDone(String symbol, Double price, Double volume, Side side)
 	{
-		logHelper.logDebug("OnTradeDone called()");
-		
-		if(!symbol.contains(hedgeMarket)) {
-			api.SendMarketOrder(counterInstrument.get(symbol), volume, side == Side.BUY ? Side.SELL : Side.BUY);
-		}
+
 	}
 	
 	/**
