@@ -26,6 +26,12 @@ public class Strategy implements Observer{
 	String hedgeMarket = "BURG";
 	private boolean strategyStarted = false;
 	
+	/**
+	 * Strategy initialization
+	 * Subscribe to the logon event from the market
+	 * Add more initialization action here if needed
+	 * @param app
+	 */
 	public Strategy(BanzaiApplication app) {
 		counterInstrument.put("ERIC B XSTO", "ERIC B BURG");
 		counterInstrument.put("ERIC B BURG", "ERIC B XSTO");
@@ -90,6 +96,9 @@ public class Strategy implements Observer{
 		}
 	}
 	
+	/**
+	 * Logon event handling, DO NO TOUCH!!!
+	 */
 	@Override
 	public void update(Observable o, Object arg) {
         LogonEvent logonEvent = (LogonEvent)arg;
