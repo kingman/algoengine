@@ -134,7 +134,7 @@ public class PositionTableModel extends AbstractTableModel implements Observer {
 			if(bid == null)
 				position.price = (ask!=null) ? ask : 0;
 			else
-				position.price = (ask!=null) ? ask+bid/2 : bid;
+				position.price = (ask!=null) ? (ask+bid)/2 : bid;
 			recalculatePosition(position);
 			
 			
