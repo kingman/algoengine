@@ -156,20 +156,29 @@ public class API{
 		return app.getOrderbook(symbol);
 	}
 	
-	public void cancelOrder(String symbol, Side side) {
-		String orderId = orderKeeper.get(side).remove(symbol);
+	/**
+	 * Cancel active order for the specified instrument and side
+	 * @param instumentId
+	 * @param side
+	 */
+	public void cancelOrder(String instumentId, Side side) {
+		String orderId = orderKeeper.get(side).remove(instumentId);
 		Order order = app.getOrder(orderId);
 		if(order != null) {
 			app.cancel(order);
 		}
-		logHelper.logDebug("Sent order cancel request for " + symbol + " " + side);
+		logHelper.logDebug("Sent order cancel request for " + instumentId + " " + side);
 	}
 	
-	public void cancelAllOrder(Collection<String> symbols) {
+	/**
+	 * Cancel all the active buy and sell orders for the specified instruments
+	 * @param instrumentIds
+	 */
+	public void cancelAllOrder(Collection<String> instrumentIds) {
 		logHelper.logDebug("Canceling all orders");
-		for(String symbol : symbols) {
-			cancelOrder(symbol, Side.BUY);
-			cancelOrder(symbol, Side.SELL);			
+		for(String instrumentId : instrumentIds) {
+			cancelOrder(instrumentId, Side.BUY);
+			cancelOrder(instrumentId, Side.SELL);
 		}
 		orderAdded = false;
 	}
